@@ -6,16 +6,22 @@ from turnip_head import TurnipHead
 class TurnipGUI():
     def __init__(self):
         self.turnip: TurnipHead = TurnipHead()
-        self.threadStart: threading.Thread = threading.Thread(target=self.turnip.run)
-        self.threadStop: threading.Thread = threading.Thread(target=self.turnip.stop)
+        self.threadStart: threading.Thread = None
+        self.threadStop: threading.Thread = None
 
     def handle_start_button(self, event):
+        if self.threadStart.isAlive():
+            print("Thread is already running")
+            return
+
+        self.threadStart = threading.Thread(target=self.turnip.run)
         self.threadStart.start()
         print("Starting thread")
 
     def handle_stop_button(self, event):
+        self.threadStop = threading.Thread(target=self.turnip.stop)
         self.threadStop.start()
-        print("Stopping threads")
+        print("Sent stop signal")
 
     def run(self):
         window = tk.Tk()
