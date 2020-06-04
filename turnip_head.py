@@ -7,36 +7,42 @@ from win10toast import ToastNotifier
 
 
 class TurnipHead():
-    def __init__(self):
+    def __init__(self, interval=0):
         self.SLEEP_TIME = 2
         self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.CONFIG = self.startup()
-        self.TURNIP_RUN = True
+        self.TURNIP_RUNNING = True
+        self.INTERVAL = interval
+
 
     def startup(self):
         with open(os.path.join(self.BASE_DIR, 'config.json')) as f:
             print("Loaded config")
             return json.load(f)
 
+
     def stop(self):
-        self.TURNIP_RUN = False
+        self.TURNIP_RUNNING = False
         print(f"Turnip turned off")
+
 
     def run(self, debugging=False):
         self.startup()
+        self.TURNIP_RUNNING = True
 
         """Start monitoring animal crossing turnip site"""
         print("Starting scrape")
 
         history = {}
 
-        while self.TURNIP_RUN:
+        while self.TURNIP_RUNNING:
             all_prices, prices = self.scrape_islands(history)
             self.remove_inactive(history, all_prices)
             self.send_notification(prices)
             if debugging:
                 break
             print("Scrape loop complete")
+            time.sleep(self.INTERVAL)
 
         # for name, price in prices.items():
         #     driver = webdriver.Chrome()
@@ -53,6 +59,7 @@ class TurnipHead():
         #     time.sleep(SLEEP_TIME)
 
         #     time.sleep(1000)
+
 
     def scrape_islands(self, history):
         driver = webdriver.Chrome()
@@ -81,6 +88,7 @@ class TurnipHead():
         driver.quit()
 
         return all_prices, prices
+
 
     def remove_inactive(self, history, all_prices):
         """Remove inactive islands"""
